@@ -11,10 +11,6 @@ data class HeroInfo(
 
 val heroesInfo = listOf(
     HeroInfo("Pick", R.drawable.ic_pick, R.drawable.ic_ult, listOf(60, 30, 10)),
-//    HeroInfo("Axe", R.drawable.ic_axe, R.drawable.ic_ult_axe, listOf(60, 30, 10)),
-//    HeroInfo("Enigma", R.drawable.ic_3, R.drawable.ic_ult_enigma, listOf(60, 30, 10)),
-//    HeroInfo("Pudge", R.drawable.ic_pudge, R.drawable.ic_ult_pudge, listOf(100, 50, 20)),
-
     HeroInfo("Abaddon", R.drawable.ic_abaddon, R.drawable.ic_ult_abaddon, listOf(80, 70, 60)),
     HeroInfo("Alchemist", R.drawable.ic_alchemist, R.drawable.ic_ult_alchemist, listOf(60, 60, 60)),
     HeroInfo("Ancient Apparition", R.drawable.ic_ancient_apparition, R.drawable.ic_ult_ancient_apparition, listOf(60, 50, 40)),

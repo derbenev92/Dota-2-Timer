@@ -21,11 +21,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -47,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -88,6 +91,14 @@ class MainActivity : ComponentActivity() {
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false // Белый текст и иконки
 
+        // Скрываем нижнюю панель
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            windowInsetsController.hide(android.view.WindowInsets.Type.navigationBars()) // Скрыть нижнюю панель
+        } else {
+            window.decorView.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        }
+
 
 
         setContent {
@@ -112,14 +123,29 @@ fun RowWithAddButton() {
 
 
 
+    var selectedHero by remember { mutableStateOf(heroesInfo.first()) } // Выбранный герой
+    var expanded by remember { mutableStateOf(false) }
 
-    // Функция сброса состояний
     fun resetState() {
+        // Сброс таймера на начальное значение
         timerState = 0
-        rows.clear()
-        rows.add(Unit)
 
-    } // Сброс списка героев до начального состояния
+        // Сброс строки героев на состояние первого запуска
+        rows.clear()
+
+
+        // Сброс выбранного героя на первого
+        selectedHero = heroesInfo.first()
+
+
+        // Сброс отображаемого времени (например, таймера)
+        displayedTime = " "
+
+        // Если есть другие состояния, которые должны сбрасываться (например, состояние кнопок или чекбоксов):
+        isTimerRunning = false
+        // и т.д.
+
+    }
 
 
 
@@ -138,7 +164,7 @@ fun RowWithAddButton() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(30.dp),
             contentAlignment = Alignment.TopEnd
         ) {
             Button(
@@ -249,12 +275,14 @@ fun RowWithAddButton() {
             }
 
             rows.forEachIndexed { index, _ ->
+
                 var expanded by remember { mutableStateOf(false) }
                 var selectedHero by remember { mutableStateOf(heroesInfo.first()) } // Выбранный герой
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(125.dp)
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
@@ -263,17 +291,17 @@ fun RowWithAddButton() {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(1f)
-                            .padding(4.dp)
+                            .fillMaxHeight()
                             .clickable { expanded = true }, // Раскрываем меню при нажатии
-                        contentAlignment = Alignment.Center
-                    ) {
 
+                    ) {
+                        // Используем размер изображения для области нажатия
                         Image(
                             painter = painterResource(id = selectedHero.iconResId),
                             contentDescription = "Hero Image",
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize() // Размер картинки и нажатия
                         )
+
 
                         DropdownMenu(
                             expanded = expanded,
@@ -295,13 +323,13 @@ fun RowWithAddButton() {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(1f)
+                            .aspectRatio(2.7f)
                             .padding(4.dp),
                         contentAlignment = Alignment.Center
                     ) {
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            TimerImageButtonBay(size = 70.dp)
+                            TimerImageButtonBay(size = 100.dp)
                             // Чекбоксы под кнопкой TimerImageButtonUlt
                             Row(
                                 modifier = Modifier
@@ -337,12 +365,12 @@ fun RowWithAddButton() {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(1f)
+                            .aspectRatio(2.7f)
                             .padding(4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            TimerImageButtonBKB(size = 70.dp)
+                            TimerImageButtonBKB(size = 100.dp)
                             // Чекбоксы под кнопкой TimerImageButtonUlt
                             Row(
                                 modifier = Modifier
@@ -379,7 +407,7 @@ fun RowWithAddButton() {
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(1f)
+                            .aspectRatio(2.7f)
                             .padding(4.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -393,7 +421,7 @@ fun RowWithAddButton() {
                             val activeCheckBoxes = listOf(checkBoxState1, checkBoxState2, checkBoxState3).count { it }
 
                             // Передача активных чекбоксов в TimerImageButtonUlt
-                            TimerImageButtonUlt(size = 70.dp, selectedHero = selectedHero, activeCheckBoxes = activeCheckBoxes)
+                            TimerImageButtonUlt(size = 100.dp, selectedHero = selectedHero, activeCheckBoxes = activeCheckBoxes)
 
                             // Чекбоксы под кнопкой TimerImageButtonUlt
                             Row(
@@ -426,7 +454,7 @@ fun RowWithAddButton() {
 
             Button(
                 onClick = {
-                    if (rows.size < 2) {
+                    if (rows.size < 3) {
                         rows.add(Unit)
                     } else {
                         coroutineScope.launch {
@@ -462,7 +490,7 @@ fun RowWithAddButton() {
 fun ImageButton(
     imageResId: Int,
     onClick: () -> Unit,
-    size: Dp = 250.dp // Размер кнопки, по умолчанию 100dp
+    size: Dp = 200.dp // Размер кнопки, по умолчанию 100dp
 ) {
     Box(
         modifier = Modifier
